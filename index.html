@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>13天12夜 青甘大環線｜深度慢遊指南</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+        body { font-family: 'Noto Sans TC', sans-serif; }
+        .hero-bg {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?ixlib=rb-4.0.3&auto=format&fit=crop&w=2021&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+        /* 自定義捲軸 */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #0d9488; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #0f766e; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800" x-data="itineraryData()">
+
+    <header class="hero-bg h-[60vh] flex flex-col justify-center items-center text-white text-center px-4">
+        <h1 class="text-4xl md:text-6xl font-bold mb-4 tracking-wider">西北大環線 深度慢遊</h1>
+        <p class="text-xl md:text-2xl font-light mb-6">13天12夜・逆時針・極致舒緩・50+專屬節奏</p>
+        <div class="flex flex-wrap justify-center gap-4 text-sm md:text-base">
+            <span class="bg-teal-600/80 px-4 py-2 rounded-full backdrop-blur-sm"><i class="fas fa-route mr-2"></i>約 2800 公里</span>
+            <span class="bg-amber-600/80 px-4 py-2 rounded-full backdrop-blur-sm"><i class="fas fa-mountain mr-2"></i>最高海拔 4120m</span>
+            <span class="bg-blue-600/80 px-4 py-2 rounded-full backdrop-blur-sm"><i class="fas fa-car mr-2"></i>SUV 自駕</span>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-12 -mt-20 relative z-10">
+        
+        <div class="bg-white rounded-xl shadow-xl p-8 mb-12 border-l-4 border-teal-500">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">行程特色重點</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-gray-600">
+                <div class="flex items-start">
+                    <div class="text-teal-500 text-2xl mr-3"><i class="fas fa-heart-pulse"></i></div>
+                    <div>
+                        <h3 class="font-bold text-gray-800">抗高反逆時針</h3>
+                        <p class="text-sm">先低後高，在敦煌(1100m)充分休息後再挑戰高原。</p>
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <div class="text-teal-500 text-2xl mr-3"><i class="fas fa-bed"></i></div>
+                    <div>
+                        <h3 class="font-bold text-gray-800">拒絕疲勞駕駛</h3>
+                        <p class="text-sm">長途路段拆分，每日車程控制在舒適範圍，增加緩衝日。</p>
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <div class="text-teal-500 text-2xl mr-3"><i class="fas fa-camera"></i></div>
+                    <div>
+                        <h3 class="font-bold text-gray-800">深度小眾體驗</h3>
+                        <p class="text-sm">崗什卡雪峰、祁連騎馬、U型公路、避開人潮的翡翠湖。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <template x-for="(day, index) in days" :key="index">
+                <div class="bg-white rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden group cursor-pointer border border-gray-100 flex flex-col h-full"
+                     @click="openDetail(day)">
+                    
+                    <div class="h-32 relative overflow-hidden" :class="day.themeColor">
+                        <div class="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors"></div>
+                        <div class="absolute bottom-4 left-6 text-white">
+                            <span class="text-xs font-bold uppercase tracking-widest opacity-80" x-text="'DAY ' + day.id"></span>
+                            <h3 class="text-2xl font-bold" x-text="day.title"></h3>
+                        </div>
+                        <div class="absolute top-4 right-4 bg-white/20 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs font-bold">
+                            <i class="fas fa-map-marker-alt mr-1"></i> <span x-text="day.destination"></span>
+                        </div>
+                    </div>
+
+                    <div class="p-6 flex-grow flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-4 text-sm text-gray-500 border-b border-gray-100 pb-2">
+                                <span><i class="fas fa-road mr-1"></i> <span x-text="day.km"></span> km</span>
+                                <span><i class="fas fa-cloud mr-1"></i> 海拔 <span x-text="day.altitude"></span></span>
+                            </div>
+                            <p class="text-gray-600 text-sm leading-relaxed mb-4" x-text="day.highlight"></p>
+                            
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <template x-for="tag in day.tags">
+                                    <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md" x-text="tag"></span>
+                                </template>
+                            </div>
+                        </div>
+
+                        <button class="w-full mt-2 py-2 text-center text-teal-600 font-bold text-sm border border-teal-600 rounded hover:bg-teal-600 hover:text-white transition-colors">
+                            查看詳細行程 <i class="fas fa-arrow-right ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </main>
+
+    <footer class="bg-gray-800 text-gray-400 py-8 text-center mt-12">
+        <p class="mb-2">© 2025 西北大環線專屬定製行程</p>
+        <p class="text-xs">建議使用 SUV 車型自駕｜請提前預約莫高窟門票</p>
+    </footer>
+
+    <div x-show="isOpen" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+         style="display: none;">
+        
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col" @click.away="isOpen = false">
+            
+            <div class="p-6 text-white flex justify-between items-start" :class="currentDay.themeColor">
+                <div>
+                    <span class="text-sm font-bold opacity-80 block mb-1" x-text="'DAY ' + currentDay.id + ' | ' + currentDay.dateHint"></span>
+                    <h2 class="text-3xl font-bold" x-text="currentDay.fullTitle"></h2>
+                    <div class="flex gap-6 mt-4 text-sm font-medium">
+                        <span class="flex items-center"><i class="fas fa-car mr-2"></i> 車程：約 <span x-text="currentDay.driveTime"></span></span>
+                        <span class="flex items-center"><i class="fas fa-mountain mr-2"></i> 住宿海拔：<span x-text="currentDay.altitude"></span></span>
+                    </div>
+                </div>
+                <button @click="isOpen = false" class="text-white hover:text-gray-200 transition-colors">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+
+            <div class="overflow-y-auto p-6 flex-grow bg-gray-50">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    
+                    <div class="lg:col-span-2">
+                        <h4 class="text-lg font-bold text-gray-800 mb-4 border-l-4 border-teal-500 pl-3">今日詳細時間軸</h4>
+                        <div class="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-300 before:to-transparent">
+                            <template x-for="item in currentDay.timeline">
+                                <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                                    <div class="flex items-center justify-center w-10 h-10 rounded-full border border-white bg-slate-200 group-hover:bg-teal-500 group-hover:text-white text-slate-500 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 transition-colors">
+                                        <i :class="item.icon"></i>
+                                    </div>
+                                    <div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                                        <div class="flex items-center justify-between space-x-2 mb-1">
+                                            <div class="font-bold text-slate-900" x-text="item.time"></div>
+                                        </div>
+                                        <div class="text-teal-600 font-bold mb-1" x-text="item.activity"></div>
+                                        <div class="text-gray-500 text-sm" x-text="item.desc"></div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                            <h4 class="font-bold text-gray-800 mb-3 flex items-center"><i class="fas fa-bed text-teal-500 mr-2"></i> 住宿建議</h4>
+                            <div class="text-sm text-gray-600">
+                                <p class="mb-2"><span class="font-bold text-gray-700">地點：</span><span x-text="currentDay.stayLocation"></span></p>
+                                <p x-text="currentDay.stayDesc"></p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                            <h4 class="font-bold text-gray-800 mb-3 flex items-center"><i class="fas fa-utensils text-orange-500 mr-2"></i> 餐飲推薦</h4>
+                            <p class="text-sm text-gray-600" x-text="currentDay.food"></p>
+                        </div>
+
+                        <div class="bg-blue-50 p-5 rounded-xl border border-blue-100">
+                            <h4 class="font-bold text-blue-800 mb-3 flex items-center"><i class="fas fa-info-circle text-blue-600 mr-2"></i> 貼心小提醒</h4>
+                            <ul class="text-sm text-blue-700 list-disc list-inside space-y-1">
+                                <template x-for="tip in currentDay.tips">
+                                    <li x-text="tip"></li>
+                                </template>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-4 bg-gray-100 text-right border-t border-gray-200">
+                <button @click="isOpen = false" class="px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors shadow">
+                    關閉
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function itineraryData() {
+            return {
+                isOpen: false,
+                currentDay: {},
+                days: [
+                    {
+                        id: 1,
+                        title: "初抵高原",
+                        fullTitle: "西寧 ➔ 貴德｜黃河丹霞初體驗",
+                        destination: "貴德",
+                        km: "120",
+                        altitude: "2200m",
+                        highlight: "輕鬆適應海拔，欣賞「天下黃河貴德清」的奇景。",
+                        tags: ["黃河清", "丹霞地貌", "輕鬆適應"],
+                        themeColor: "bg-gradient-to-r from-blue-500 to-teal-400",
+                        dateHint: "Day 1",
+                        driveTime: "2.5 小時",
+                        timeline: [
+                            { time: "AM", activity: "抵達西寧", icon: "fas fa-plane-arrival", desc: "租車、採買補給品(水、乾糧、氧氣)" },
+                            { time: "13:00", activity: "前往貴德", icon: "fas fa-car", desc: "途經拉脊山，風景逐漸轉為紅色丹霞" },
+                            { time: "16:30", activity: "貴德國家地質公園", icon: "fas fa-camera", desc: "欣賞清澈的黃河水與丹霞背景" },
+                            { time: "18:30", activity: "晚餐", icon: "fas fa-utensils", desc: "品嘗當地特色晚餐" }
+                        ],
+                        stayLocation: "貴德縣城",
+                        stayDesc: "選擇較新的連鎖飯店。海拔低，睡眠品質好。",
+                        food: "當地黃河魚、回族麵食。",
+                        tips: ["第一天請勿洗澡太久，預防感冒。", "多喝水，放慢動作適應高原。"]
+                    },
+                    {
+                        id: 2,
+                        title: "雪峰與埡口",
+                        fullTitle: "貴德 ➔ 祁連｜穿越祁連山脈",
+                        destination: "祁連縣",
+                        km: "330",
+                        altitude: "2800m",
+                        highlight: "挑戰本日最高點4120m埡口，近觀崗什卡雪峰。",
+                        tags: ["崗什卡雪峰", "大冬樹山埡口", "最美國道"],
+                        themeColor: "bg-gradient-to-r from-gray-700 to-gray-500",
+                        dateHint: "Day 2",
+                        driveTime: "6.5 小時",
+                        timeline: [
+                            { time: "08:30", activity: "貴德出發", icon: "fas fa-car", desc: "沿 S301 向北行駛" },
+                            { time: "12:00", activity: "午餐", icon: "fas fa-utensils", desc: "在共和或烏蘭縣簡單用餐" },
+                            { time: "14:00", activity: "大冬樹山埡口", icon: "fas fa-mountain", desc: "海拔4120m，快速拍照，不要久留" },
+                            { time: "15:30", activity: "崗什卡雪峰觀景台", icon: "fas fa-snowflake", desc: "重點停留！近距離欣賞終年積雪" },
+                            { time: "17:30", activity: "抵達祁連", icon: "fas fa-hotel", desc: "入住有東方小瑞士之稱的祁連縣" }
+                        ],
+                        stayLocation: "祁連縣城",
+                        stayDesc: "建議選擇暖氣設施良好的飯店。",
+                        food: "祁連犛牛肉火鍋。",
+                        tips: ["今日經過最高海拔，請備好氧氣瓶。", "埡口風大，務必戴帽子保暖。"]
+                    },
+                    {
+                        id: 3,
+                        title: "草原奔馳",
+                        fullTitle: "祁連 ➔ 張掖｜草原騎馬與海拔速降",
+                        destination: "張掖",
+                        km: "250",
+                        altitude: "1500m",
+                        highlight: "上午卓爾山觀景，下午體驗在草原上騎馬奔跑，晚上享受低海拔。",
+                        tags: ["卓爾山", "騎馬體驗", "低海拔修復"],
+                        themeColor: "bg-gradient-to-r from-green-600 to-green-400",
+                        dateHint: "Day 3",
+                        driveTime: "4 小時",
+                        timeline: [
+                            { time: "08:00", activity: "卓爾山景區", icon: "fas fa-image", desc: "俯瞰祁連全景，牛心山最佳視角" },
+                            { time: "10:30", activity: "祁連大草原", icon: "fas fa-horse", desc: "【重點】新手騎馬體驗，教練牽引小跑" },
+                            { time: "13:30", activity: "前往張掖", icon: "fas fa-car", desc: "翻越扁都口，進入河西走廊" },
+                            { time: "17:30", activity: "抵達張掖", icon: "fas fa-city", desc: "海拔降至1500m，身體極度舒適" }
+                        ],
+                        stayLocation: "張掖市區",
+                        stayDesc: "市區飯店選擇多，條件好。",
+                        food: "搓魚子、炒炮仗（當地特色麵食）。",
+                        tips: ["騎馬時請穿長褲。", "今晚海拔低，可以洗個舒服的澡，好好休息。"]
+                    },
+                    {
+                        id: 4,
+                        title: "丹霞雄關",
+                        fullTitle: "張掖 ➔ 嘉峪關｜七彩丹霞與萬里長城",
+                        destination: "嘉峪關",
+                        km: "200",
+                        altitude: "1600m",
+                        highlight: "早晨看最美丹霞色彩，下午登天下第一雄關。",
+                        tags: ["七彩丹霞", "嘉峪關關城", "歷史文化"],
+                        themeColor: "bg-gradient-to-r from-orange-600 to-red-500",
+                        dateHint: "Day 4",
+                        driveTime: "3 小時",
+                        timeline: [
+                            { time: "08:00", activity: "七彩丹霞景區", icon: "fas fa-camera-retro", desc: "上午光線柔和，色彩層次分明" },
+                            { time: "12:30", activity: "前往嘉峪關", icon: "fas fa-car", desc: "沿國道 G312 行駛" },
+                            { time: "15:30", activity: "嘉峪關關城", icon: "fas fa-archway", desc: "參觀明代萬里長城西端起點" },
+                            { time: "19:30", activity: "晚餐", icon: "fas fa-fire", desc: "嘉峪關烤肉" }
+                        ],
+                        stayLocation: "嘉峪關市區",
+                        stayDesc: "住宿集中方便。",
+                        food: "嘉峪關烤肉（必吃）。",
+                        tips: ["丹霞景區無遮蔽，注意防曬。", "關城多步行，請穿好走的鞋。"]
+                    },
+                    {
+                        id: 5,
+                        title: "戈壁長征",
+                        fullTitle: "嘉峪關 ➔ 敦煌｜大地之子與戈壁公路",
+                        destination: "敦煌",
+                        km: "400",
+                        altitude: "1100m",
+                        highlight: "中途停留瓜州大地之子雕塑，傍晚抵達敦煌休整。",
+                        tags: ["大地之子", "瓜州蜜瓜", "長途駕駛"],
+                        themeColor: "bg-gradient-to-r from-yellow-600 to-yellow-400",
+                        dateHint: "Day 5",
+                        driveTime: "5.5 小時",
+                        timeline: [
+                            { time: "09:00", activity: "嘉峪關出發", icon: "fas fa-car", desc: "準備進入戈壁路段" },
+                            { time: "11:30", activity: "瓜州午餐", icon: "fas fa-utensils", desc: "品嘗著名的瓜州蜜瓜" },
+                            { time: "13:30", activity: "大地之子雕塑", icon: "fas fa-child", desc: "戈壁上的巨型嬰兒雕塑，停車伸展拍照" },
+                            { time: "16:30", activity: "抵達敦煌", icon: "fas fa-star", desc: "入住飯店，準備迎接敦煌文化之旅" }
+                        ],
+                        stayLocation: "敦煌市區",
+                        stayDesc: "建議住在沙洲夜市附近，方便逛街。",
+                        food: "驢肉黃麵、杏皮水。",
+                        tips: ["今日車程較長，中途請適度休息。", "敦煌非常乾燥，加強保濕。"]
+                    },
+                    {
+                        id: 6,
+                        title: "敦煌千古",
+                        fullTitle: "敦煌深度遊｜莫高窟與鳴沙山",
+                        destination: "敦煌",
+                        km: "50",
+                        altitude: "1100m",
+                        highlight: "瞻仰莫高窟千年藝術，傍晚騎駱駝看沙漠日落。",
+                        tags: ["莫高窟", "鳴沙山月牙泉", "沙漠日落"],
+                        themeColor: "bg-gradient-to-r from-yellow-700 to-orange-400",
+                        dateHint: "Day 6",
+                        driveTime: "1 小時",
+                        timeline: [
+                            { time: "AM", activity: "莫高窟", icon: "fas fa-landmark", desc: "【需提前預約】觀看數字電影及實體洞窟" },
+                            { time: "PM", activity: "飯店休息", icon: "fas fa-bed", desc: "避開正午烈日，在飯店午休" },
+                            { time: "17:00", activity: "鳴沙山月牙泉", icon: "fas fa-sun", desc: "騎駱駝、滑沙、看沙漠日落" },
+                            { time: "20:30", activity: "沙洲夜市", icon: "fas fa-beer", desc: "感受絲路夜市氛圍" }
+                        ],
+                        stayLocation: "敦煌市區 (續住)",
+                        stayDesc: "不用收拾行李，輕鬆的一天。",
+                        food: "胡楊燜餅、羊肉串。",
+                        tips: ["進入沙漠要注意相機防沙。", "莫高窟內禁止拍照。"]
+                    },
+                    {
+                        id: 7,
+                        title: "西出陽關",
+                        fullTitle: "敦煌 ➔ 冷湖/阿克塞｜絲路邊關",
+                        destination: "冷湖/阿克塞",
+                        km: "300",
+                        altitude: "2700m",
+                        highlight: "探訪陽關或玉門關，感受古詩中的蒼涼。",
+                        tags: ["陽關", "玉門關", "石油小鎮"],
+                        themeColor: "bg-gradient-to-r from-gray-600 to-gray-400",
+                        dateHint: "Day 7",
+                        driveTime: "4 小時",
+                        timeline: [
+                            { time: "09:00", activity: "前往陽關/玉門關", icon: "fas fa-history", desc: "二選一參觀，建議選陽關體驗通關文牒" },
+                            { time: "12:30", activity: "路餐", icon: "fas fa-bread-slice", desc: "沿途簡餐" },
+                            { time: "14:30", activity: "前往阿克塞", icon: "fas fa-car", desc: "開始進入高原爬升段" },
+                            { time: "17:30", activity: "冷湖石油小鎮", icon: "fas fa-film", desc: "廢棄的工業小鎮，電影感十足" }
+                        ],
+                        stayLocation: "冷湖鎮或阿克塞",
+                        stayDesc: "住宿條件相對簡單，乾淨為主。",
+                        food: "簡單的清真餐飲。",
+                        tips: ["景區外圍可能有土路，小心駕駛。", "海拔開始回升，注意身體反應。"]
+                    },
+                    {
+                        id: 8,
+                        title: "火星地貌",
+                        fullTitle: "冷湖 ➔ 茫崖｜深入柴達木腹地",
+                        destination: "茫崖",
+                        km: "300",
+                        altitude: "3000m",
+                        highlight: "遠觀俄博梁雅丹魔鬼城，抵達秘境茫崖。",
+                        tags: ["俄博梁雅丹", "茫崖翡翠湖", "無人區"],
+                        themeColor: "bg-gradient-to-r from-stone-600 to-stone-400",
+                        dateHint: "Day 8",
+                        driveTime: "4 小時",
+                        timeline: [
+                            { time: "09:00", activity: "出發", icon: "fas fa-car", desc: "沿 G315 穿越無人區" },
+                            { time: "11:30", activity: "俄博梁雅丹", icon: "fas fa-ghost", desc: "遠觀地球上最像火星的地方" },
+                            { time: "15:30", activity: "茫崖翡翠湖", icon: "fas fa-gem", desc: "人少景美，如鑲嵌在戈壁的翡翠" },
+                            { time: "18:30", activity: "茫崖晚餐", icon: "fas fa-utensils", desc: "當地特色菜" }
+                        ],
+                        stayLocation: "茫崖市區",
+                        stayDesc: "新興城市，條件比冷湖好。",
+                        food: "烤羊肉。",
+                        tips: ["今日經過路段訊號可能不佳，下載離線地圖。", "雅丹地貌易迷路，切勿駛離公路太遠。"]
+                    },
+                    {
+                        id: 9,
+                        title: "水上雅丹",
+                        fullTitle: "茫崖 ➔ 大柴旦｜最美國道 G315",
+                        destination: "大柴旦",
+                        km: "300",
+                        altitude: "3100m",
+                        highlight: "打卡U型公路，觀賞世界唯一的水上雅丹。",
+                        tags: ["U型公路", "水上雅丹", "東臺吉乃爾湖"],
+                        themeColor: "bg-gradient-to-r from-blue-700 to-cyan-500",
+                        dateHint: "Day 9",
+                        driveTime: "4.5 小時",
+                        timeline: [
+                            { time: "11:00", activity: "東臺吉乃爾湖", icon: "fas fa-water", desc: "青海馬爾代夫(路過拍照)" },
+                            { time: "12:30", activity: "水上雅丹", icon: "fas fa-ship", desc: "在景區外圍拍照並午餐" },
+                            { time: "14:30", activity: "U型網紅公路", icon: "fas fa-road", desc: "G315著名的起伏路段，停車拍照注意安全" },
+                            { time: "16:30", activity: "抵達大柴旦", icon: "fas fa-hotel", desc: "入住休息" }
+                        ],
+                        stayLocation: "大柴旦鎮",
+                        stayDesc: "重要的中轉站，住宿選擇多。",
+                        food: "坑鍋肉。",
+                        tips: ["U型公路車速快，絕對不要站在路中央！", "風大，注意保暖。"]
+                    },
+                    {
+                        id: 10,
+                        title: "翡翠緩衝",
+                        fullTitle: "大柴旦｜高原休閒日",
+                        destination: "大柴旦",
+                        km: "100",
+                        altitude: "3100m",
+                        highlight: "在美麗的大柴旦翡翠湖慢遊，為明日青海湖蓄力。",
+                        tags: ["大柴旦翡翠湖", "休閒調整", "火星公路"],
+                        themeColor: "bg-gradient-to-r from-teal-500 to-emerald-400",
+                        dateHint: "Day 10",
+                        driveTime: "2 小時",
+                        timeline: [
+                            { time: "AM", activity: "睡到自然醒", icon: "fas fa-coffee", desc: "高海拔適應休息日" },
+                            { time: "14:00", activity: "大柴旦翡翠湖", icon: "fas fa-camera", desc: "顏色豐富的鹽湖群，比茶卡人少，適合拍倒影" },
+                            { time: "16:30", activity: "火星一號公路", icon: "fas fa-rocket", desc: "周邊短途體驗荒涼美感" },
+                            { time: "18:30", activity: "晚餐", icon: "fas fa-utensils", desc: "大柴旦市區用餐" }
+                        ],
+                        stayLocation: "大柴旦鎮 (續住)",
+                        stayDesc: "減少行李搬運。",
+                        food: "當地特色炕鍋。",
+                        tips: ["鹽湖鹵水有腐蝕性，建議穿鞋套或拖鞋。", "多喝水，保持體力。"]
+                    },
+                    {
+                        id: 11,
+                        title: "湖畔之夜",
+                        fullTitle: "大柴旦 ➔ 青海湖畔｜直奔聖湖",
+                        destination: "青海湖",
+                        km: "300",
+                        altitude: "3200m",
+                        highlight: "捨棄擁擠的茶卡，提前抵達青海湖畔享受寧靜。",
+                        tags: ["青海湖", "最高住宿點", "取消茶卡"],
+                        themeColor: "bg-gradient-to-r from-blue-600 to-blue-800",
+                        dateHint: "Day 11",
+                        driveTime: "4.5 小時",
+                        timeline: [
+                            { time: "08:30", activity: "大柴旦出發", icon: "fas fa-car", desc: "沿 G315/G109 往東南行駛" },
+                            { time: "12:00", activity: "路途中午餐", icon: "fas fa-utensils", desc: "不進茶卡鎮，節省時間" },
+                            { time: "16:30", activity: "抵達青海湖畔", icon: "fas fa-water", desc: "入住黑馬河或江西溝周邊" },
+                            { time: "18:00", activity: "湖畔漫步", icon: "fas fa-walking", desc: "在湖邊看犛牛、看日落" }
+                        ],
+                        stayLocation: "青海湖畔 (黑馬河/江西溝)",
+                        stayDesc: "條件相對簡單，務必確認有電熱毯/暖氣。",
+                        food: "川菜或簡單藏餐。",
+                        tips: ["今晚是全程海拔最高住宿，動作放慢。", "晚上極冷，穿羽絨服。"]
+                    },
+                    {
+                        id: 12,
+                        title: "日出東方",
+                        fullTitle: "青海湖 ➔ 共和｜告別高原",
+                        destination: "共和",
+                        km: "180",
+                        altitude: "2800m",
+                        highlight: "震撼的青海湖日出，環湖東路美景。",
+                        tags: ["青海湖日出", "環湖東路", "海拔下降"],
+                        themeColor: "bg-gradient-to-r from-indigo-500 to-purple-500",
+                        dateHint: "Day 12",
+                        driveTime: "3 小時",
+                        timeline: [
+                            { time: "06:00", activity: "青海湖日出", icon: "fas fa-sun", desc: "視天氣情況早起觀賞" },
+                            { time: "11:00", activity: "環湖東路", icon: "fas fa-road", desc: "一邊是湖，一邊是沙漠的獨特景觀" },
+                            { time: "13:00", activity: "抵達共和", icon: "fas fa-city", desc: "午餐及入住" },
+                            { time: "PM", activity: "休息調整", icon: "fas fa-coffee", desc: "海拔降至2800m，非常舒適" }
+                        ],
+                        stayLocation: "共和縣城 (恰卜恰)",
+                        stayDesc: "設施完善，乾淨舒適。",
+                        food: "手抓羊肉。",
+                        tips: ["看完日出可以補個回籠覺。", "共和是回程前的重要休整點。"]
+                    },
+                    {
+                        id: 13,
+                        title: "圓滿回歸",
+                        fullTitle: "共和 ➔ 西寧｜旅程終點",
+                        destination: "西寧",
+                        km: "250",
+                        altitude: "2200m",
+                        highlight: "途經日月山，返回西寧，結束美好旅程。",
+                        tags: ["日月山", "塔爾寺(選)", "還車"],
+                        themeColor: "bg-gradient-to-r from-gray-500 to-slate-400",
+                        dateHint: "Day 13",
+                        driveTime: "4 小時",
+                        timeline: [
+                            { time: "08:30", activity: "共和出發", icon: "fas fa-car", desc: "上高速/國道返回西寧" },
+                            { time: "10:00", activity: "日月山/倒淌河", icon: "fas fa-landmark", desc: "車覽或短暫停留拍照" },
+                            { time: "13:30", activity: "塔爾寺(自選)", icon: "fas fa-place-of-worship", desc: "若時間充裕可參觀藏傳佛教名寺" },
+                            { time: "15:30", activity: "抵達西寧", icon: "fas fa-flag-checkered", desc: "還車，前往機場或火車站" }
+                        ],
+                        stayLocation: "溫暖的家",
+                        stayDesc: "旅程結束。",
+                        food: "西寧市區美食。",
+                        tips: ["檢查車內物品是否遺漏。", "提前確認航班/車次時間。"]
+                    }
+                ],
+                openDetail(day) {
+                    this.currentDay = day;
+                    this.isOpen = true;
+                    document.body.style.overflow = 'hidden'; // 防止背景滾動
+                },
+                closeDetail() {
+                    this.isOpen = false;
+                    document.body.style.overflow = 'auto';
+                },
+                init() {
+                    this.$watch('isOpen', value => {
+                        if (!value) document.body.style.overflow = 'auto';
+                    });
+                }
+            }
+        }
+    </script>
+</body>
+</html>
